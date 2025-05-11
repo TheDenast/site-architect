@@ -17,6 +17,9 @@ class TextNode:
         self.text_type: TextType = text_type
         self.url: str | None = url
 
+        if self.text_type == TextType.LINK and self.url is None:
+            raise ValueError(f"{TextType.LINK} requires url to be not None!")
+
     @override
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, TextNode):
@@ -29,4 +32,7 @@ class TextNode:
 
     @override
     def __repr__(self):
-        return f"TextNode({self.text}, {self.text_type}, {self.url})"
+        if self.text_type is not TextType.LINK:
+            return f"TextNode({self.text}, {self.text_type})"
+        else:
+            return f"TextNode({self.text}, {self.text_type}, {self.url})"
