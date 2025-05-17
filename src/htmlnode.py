@@ -50,3 +50,31 @@ class LeafNode(HTMLNode):
         else:
             props_str = " " + self.props_to_html() if self.props_to_html() else ""
             return f"<{self.tag}{props_str}>{self.value}</{self.tag}>"
+
+
+@final
+class ParentNode(HTMLNode):
+    def __init__(
+        self,
+        tag: str,
+        children: list["HTMLNode"],
+        props: dict[str, str] | None = None,
+    ):
+        super().__init__(tag, None, children, props)
+        self.tag = tag
+        self.children = children
+        self.props = props
+
+    @override
+    def to_html(self) -> str:
+        if self.tag is None:
+            raise ValueError("All parent nodes need to be tagged")
+        if self.children is None:
+            raise ValueError("All parent nodes need to have children")
+
+        props_str = " " + self.props_to_html() if self.props_to_html() else ""
+        html_str = f"<{self.tag}{props_str}>"
+        for child in self.children:
+            html_str += child.to_html()
+        html_str += f"</{self.tag}>"
+        return html_str
