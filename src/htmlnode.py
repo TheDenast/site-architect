@@ -1,7 +1,6 @@
 from typing import final, override
 
 
-@final
 class HTMLNode:
     def __init__(
         self,
@@ -10,16 +9,16 @@ class HTMLNode:
         children: list["HTMLNode"] | None = None,
         props: dict[str, str] | None = None,
     ):
-        self.tag = tag
-        self.value = value
-        self.children = children
-        self.props = props
+        self.value: str | None = value
+        self.tag: str | None = tag
+        self.children: list["HTMLNode"] | None = children
+        self.props: dict[str, str] | None = props
 
     @override
     def __repr__(self):
         return f"HTMLNode({self.tag}, {self.value}, {self.children}, {self.props})"
 
-    def to_html(self) -> None:
+    def to_html(self) -> str:
         raise NotImplementedError
 
     def props_to_html(self):
@@ -30,3 +29,24 @@ class HTMLNode:
             return all_props[:-1]
         else:
             return ""
+
+
+@final
+class LeafNode(HTMLNode):
+    def __init__(
+        self,
+        tag: str | None = None,
+        value: str | None = None,
+        props: dict[str, str] | None = None,
+    ):
+        if value is None:
+            raise ValueError("All leaf nodes must have a value")
+        super().__init__(tag, value, None, props)
+
+    @override
+    def to_html(self) -> str:
+        if self.tag is None and self.value is not None:
+            return self.value
+        else:
+            props_str = " " + self.props_to_html() if self.props_to_html() else ""
+            return f"<{self.tag}{props_str}>{self.value}</{self.tag}>"

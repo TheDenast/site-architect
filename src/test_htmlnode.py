@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode
+from htmlnode import HTMLNode, LeafNode
 
 
 class TestHTMLNode(unittest.TestCase):
@@ -21,6 +21,22 @@ class TestHTMLNode(unittest.TestCase):
         self.assertEqual(
             node.props_to_html(), 'data-test="value" class="btn btn-primary"'
         )
+
+    def test_leaf_to_html_p(self):
+        node = LeafNode("p", "Hello, world!")
+        self.assertEqual(node.to_html(), "<p>Hello, world!</p>")
+
+    def test_leaf_to_html_a_with_props(self):
+        node = LeafNode("a", "Click me!", {"href": "https://www.google.com"})
+        self.assertEqual(
+            node.to_html(), '<a href="https://www.google.com">Click me!</a>'
+        )
+
+    def test_valuerr_without_value(self):
+        # Use the context manager to assert that the code inside raises ValueError
+        with self.assertRaises(ValueError):
+            # This code should raise the exception
+            _ = LeafNode()
 
 
 if __name__ == "__main__":
