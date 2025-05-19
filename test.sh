@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-python3 -m unittest discover -s src
+PYTHONPATH=$(pwd) python3 -m unittest discover -s tests/unit
+
