@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-python src/main.py
+PYTHONPATH=$(pwd) python3 -m src.main
