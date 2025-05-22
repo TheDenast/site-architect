@@ -1,4 +1,5 @@
 from src.textnode import TextNode, TextType
+from typing import Callable
 import re
 
 
@@ -37,3 +38,49 @@ def extract_markdown_images(text: str) -> list[tuple[str, str]]:
 def extract_markdown_links(text: str) -> list[tuple[str, str]]:
     matches = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
     return matches
+
+
+def split_nodes_generic(
+    old_nodes: list[TextNode],
+    pattern: str,
+    text_type: TextType,
+) -> list[TextNode]:
+    new_nodes: list[TextNode] = []
+    for old_node in old_nodes:
+        if old_node.text_type != TextType.NORMAL:
+            new_nodes.append(old_node)
+            continue
+
+        remaining_text = old_node.text
+        while remaining_text:
+            match = re.search(pattern, remaining_text)
+            if not match:
+                if remaining_text:
+                    new_nodes.append(TextNode(remaining_text, TextType.NORMAL))
+                break
+
+            # Add text before match
+            if match.start() > 0:
+                new_nodes.append(
+                    TextNode(remaining_text[: match.start()], TextType.NORMAL)
+                )
+
+            # Add the match
+            alt_text, url = match.groups()
+            new_nodes.append(TextNode(alt_text, text_type, url))
+
+            remaining_text = remaining_text[match.end() :]
+
+    return new_nodes
+
+
+def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
+    return split_nodes_generic(
+        old_nodes, r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", TextType.IMAGE
+    )
+
+
+def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
+    return split_nodes_generic(
+        old_nodes, r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", TextType.LINK
+    )
