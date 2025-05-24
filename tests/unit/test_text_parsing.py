@@ -10,7 +10,7 @@ from src.text_parsing import (
 )
 
 
-class TestSplitNodesDelimiter(unittest.TestCase):
+class TestTextParsing(unittest.TestCase):
     def test_bold_delimiter_middle(self):
         # Test a bold delimiter in the middle of text
         node = TextNode("This is **bold** text", TextType.NORMAL)
