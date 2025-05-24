@@ -1,5 +1,4 @@
 from src.textnode import TextNode, TextType
-from typing import Callable
 import re
 
 
@@ -84,3 +83,26 @@ def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
     return split_nodes_generic(
         old_nodes, r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", TextType.LINK
     )
+
+
+def text_to_textnodes(text: str) -> list[TextNode]:
+    result: list[TextNode] = [TextNode(text, TextType.NORMAL)]
+    delimiter_type_pairs = [
+        ("**", TextType.BOLD),
+        ("_", TextType.ITALIC),
+        ("`", TextType.CODE),
+    ]
+
+    # First, go through images, since
+    # link regex will trigger on images regex
+    result = split_nodes_image(result)
+
+    # then links
+    result = split_nodes_link(result)
+
+    # we tackle delimeters last in case if
+    # there are any of them inside of alt text of an image/link
+    for delimiter, text_type in delimiter_type_pairs:
+        result = split_nodes_delimiter(result, delimiter, text_type)
+
+    return result

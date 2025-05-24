@@ -6,6 +6,7 @@ from src.text_parsing import (
     extract_markdown_links,
     split_nodes_image,
     split_nodes_link,
+    text_to_textnodes,
 )
 
 
@@ -222,6 +223,77 @@ class TestSplitNodesDelimiter(unittest.TestCase):
             ],
             new_nodes,
         )
+
+    def test_text_to_textnodes(self):
+        text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        testing_nodes: list[TextNode] = [
+            TextNode("This is ", TextType.NORMAL),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.NORMAL),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.NORMAL),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.NORMAL),
+            TextNode(
+                "obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"
+            ),
+            TextNode(" and a ", TextType.NORMAL),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+        ]
+        result_nodes = text_to_textnodes(text)
+        self.assertListEqual(testing_nodes, result_nodes)
+
+    def test_text_to_textnodes_empty_string(self):
+        text = ""
+        check = []
+        result = text_to_textnodes(text)
+        self.assertEqual(result, check)
+
+    def test_text_to_textnodes_nested_delimiters(self):
+        text = "This is **bold with `code` inside** text"
+        expected = [
+            TextNode("This is ", TextType.NORMAL),
+            TextNode("bold with `code` inside", TextType.BOLD),
+            TextNode(" text", TextType.NORMAL),
+        ]
+        result = text_to_textnodes(text)
+        self.assertListEqual(expected, result)
+
+    def test_text_to_textnodes_unclosed_delimiter(self):
+        text = "This has **unclosed bold"
+        with self.assertRaises(ValueError):
+            _ = text_to_textnodes(text)
+
+    def test_text_to_textnodes_image_with_delimiters_in_alt(self):
+        text = "![alt with **bold**](url) regular text"
+        expected = [
+            TextNode("alt with **bold**", TextType.IMAGE, "url"),
+            TextNode(" regular text", TextType.NORMAL),
+        ]
+        result = text_to_textnodes(text)
+        self.assertListEqual(expected, result)
+
+    def test_text_to_textnodes_only_delimiters(self):
+        text = "**bold** _italic_ `code`"
+        expected = [
+            TextNode("bold", TextType.BOLD),
+            TextNode(" ", TextType.NORMAL),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" ", TextType.NORMAL),
+            TextNode("code", TextType.CODE),
+        ]
+        result = text_to_textnodes(text)
+        self.assertListEqual(expected, result)
+
+    def test_text_to_textnodes_adjacent_different_delimiters(self):
+        text = "**bold**_italic_`code`"
+        expected = [
+            TextNode("bold", TextType.BOLD),
+            TextNode("italic", TextType.ITALIC),
+            TextNode("code", TextType.CODE),
+        ]
+        result = text_to_textnodes(text)
+        self.assertListEqual(expected, result)
 
     # TODO: This functionality is not yet supported
     #
