@@ -1,6 +1,6 @@
 import unittest
 
-from src.md import markdown_to_blocks, block_to_blocktype, BlockType
+from src.md import markdown_to_blocks, block_to_blocktype, BlockType, extract_title
 
 
 class TestMarkdownParsing(unittest.TestCase):
@@ -135,3 +135,34 @@ class TestBlockToBlocktype(unittest.TestCase):
     def test_paragraph_multiline_text(self):
         para = "This is a paragraph\nwith multiple lines\nof text"
         self.assertEqual(block_to_blocktype(para), BlockType.TEXT)
+
+
+class TestExtractTitle(unittest.TestCase):
+    def test_extract_title_valid(self):
+        markdown = "# Hello World\nSome content here"
+        self.assertEqual(extract_title(markdown), "Hello World")
+
+    def test_extract_title_with_whitespace(self):
+        markdown = "   # My Title   \nMore content"
+        self.assertEqual(extract_title(markdown), "My Title   ")
+
+    def test_extract_title_no_title(self):
+        markdown = "Just some content\nNo title here"
+        with self.assertRaises(ValueError) as cm:
+            _ = extract_title(markdown)
+        self.assertIn("No title found", str(cm.exception))
+
+    def test_extract_title_multiple_titles(self):
+        markdown = "# First Title\nSome content\n# Second Title"
+        with self.assertRaises(ValueError) as cm:
+            _ = extract_title(markdown)
+        self.assertIn("Multiple titles found", str(cm.exception))
+
+    def test_extract_title_empty_string(self):
+        with self.assertRaises(ValueError) as cm:
+            _ = extract_title("")
+        self.assertIn("No title found", str(cm.exception))
+
+    def test_extract_title_only_hash(self):
+        markdown = "# \nSome content"
+        self.assertEqual(extract_title(markdown), "")

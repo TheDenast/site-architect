@@ -1,5 +1,6 @@
 import shutil
 from pathlib import Path
+from src.html_generation import generate_pages_recursive
 
 
 def copy_files_recursive(src: Path, dst: Path) -> None:
@@ -47,6 +48,12 @@ def main() -> None:
     print("Starting static deployment...")
     deploy_static_to_public()
     print("Static files deployed to public/")
+
+    generate_pages_recursive(
+        "content/",
+        "template.html",
+        "public/",
+    )
 
 
 if __name__ == "__main__":

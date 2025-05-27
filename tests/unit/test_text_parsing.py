@@ -243,6 +243,17 @@ class TestTextParsing(unittest.TestCase):
         result_nodes = text_to_textnodes(text)
         self.assertListEqual(testing_nodes, result_nodes)
 
+    def test_text_to_textnodes_two_bold(self):
+        text = "This is bold **text** and another bold **text**"
+        testing_nodes: list[TextNode] = [
+            TextNode("This is bold ", TextType.NORMAL),
+            TextNode("text", TextType.BOLD),
+            TextNode(" and another bold ", TextType.NORMAL),
+            TextNode("text", TextType.BOLD),
+        ]
+        result_nodes = text_to_textnodes(text)
+        self.assertListEqual(testing_nodes, result_nodes)
+
     def test_text_to_textnodes_empty_string(self):
         text = ""
         check = []

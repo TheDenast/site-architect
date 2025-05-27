@@ -49,3 +49,21 @@ def block_to_blocktype(block: str) -> BlockType:
         return BlockType.NUMLIST
 
     return BlockType.TEXT
+
+
+def extract_title(markdown: str) -> str:
+    lines = markdown.strip().split("\n")
+    title_lines = [line for line in lines if line.startswith("# ")]
+
+    if len(title_lines) == 0:
+        raise ValueError(
+            "No title found: markdown must contain exactly one line starting with '# '"
+        )
+
+    if len(title_lines) > 1:
+        raise ValueError(
+            "Multiple titles found: markdown must contain exactly one line starting with '# '"
+        )
+
+    # Extract title content after '# '
+    return title_lines[0][2:]

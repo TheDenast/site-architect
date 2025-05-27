@@ -25,7 +25,11 @@ def split_nodes_delimiter(
                 new_nodes.append(TextNode(parts[1], text_type))
 
                 if parts[2]:  # If there's text after the delimiter
-                    new_nodes.append(TextNode(parts[2], TextType.NORMAL))
+                    # Recursively process the remaining text
+                    remaining_nodes = split_nodes_delimiter(
+                        [TextNode(parts[2], TextType.NORMAL)], delimiter, text_type
+                    )
+                    new_nodes.extend(remaining_nodes)
     return new_nodes
 
 
