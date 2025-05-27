@@ -47,6 +47,9 @@ class LeafNode(HTMLNode):
     def to_html(self) -> str:
         if self.tag is None and self.value is not None:
             return self.value
+        elif self.tag == "img":  # Add this
+            props_str = " " + self.props_to_html() if self.props_to_html() else ""
+            return f"<{self.tag}{props_str}>"
         else:
             props_str = " " + self.props_to_html() if self.props_to_html() else ""
             return f"<{self.tag}{props_str}>{self.value}</{self.tag}>"
