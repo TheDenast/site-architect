@@ -3,7 +3,9 @@ from src.md import extract_title
 from src.conversions import markdown_to_html_node
 
 
-def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
+def generate_page(
+    basepath: str, from_path: str, template_path: str, dest_path: str
+) -> None:
     # Get project root (assuming this file is in src/)
     project_root = Path(__file__).parent.parent
 
@@ -29,6 +31,8 @@ def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
     # Replace placeholders in template
     full_html = template_content.replace("{{ Title }}", title)
     full_html = full_html.replace("{{ Content }}", html_content)
+    full_html = full_html.replace('href="/', f'href="{basepath}')
+    full_html = full_html.replace('src="/', f'src="{basepath}')
 
     # Create destination directory if it doesn't exist
     dest_file = Path(dest_abs)
@@ -39,7 +43,7 @@ def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
 
 
 def generate_pages_recursive(
-    dir_path_content: str, template_path: str, dest_dir_path: str
+    basepath: str, dir_path_content: str, template_path: str, dest_dir_path: str
 ) -> None:
     # Get project root (assuming this file is in src/)
     project_root = Path(__file__).parent.parent
@@ -67,4 +71,4 @@ def generate_pages_recursive(
         dest_path_rel = str(dest_file_path.relative_to(project_root))
 
         # Generate the page
-        generate_page(from_path_rel, template_path, dest_path_rel)
+        generate_page(basepath, from_path_rel, template_path, dest_path_rel)

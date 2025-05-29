@@ -1,6 +1,7 @@
 import shutil
 from pathlib import Path
 from src.html_generation import generate_pages_recursive
+import sys
 
 
 def copy_files_recursive(src: Path, dst: Path) -> None:
@@ -26,7 +27,7 @@ def deploy_static_to_public() -> None:
     # Get absolute path of the script's directory (project root)
     script_dir = Path(__file__).parent.parent  # Go up from src/ to project root
     static_path = script_dir / "static"
-    public_path = script_dir / "public"
+    public_path = script_dir / "docs"
 
     print(f"Static source: {static_path}")
     print(f"Public target: {public_path}")
@@ -45,14 +46,20 @@ def deploy_static_to_public() -> None:
 
 
 def main() -> None:
+    try:
+        basepath = sys.argv[1]
+    except IndexError:
+        basepath = "/"
+
     print("Starting static deployment...")
     deploy_static_to_public()
     print("Static files deployed to public/")
 
     generate_pages_recursive(
+        basepath,
         "content/",
         "template.html",
-        "public/",
+        "docs/",
     )
 
 
